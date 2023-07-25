@@ -6,7 +6,6 @@ import com.challenge.arcam2.error.DefaultError;
 import com.challenge.arcam2.error.ExceptionArcam;
 import com.challenge.arcam2.mapper.ITransactionMapper;
 import com.challenge.arcam2.model.entity.Account;
-import com.challenge.arcam2.model.entity.Report;
 import com.challenge.arcam2.model.entity.Transaction;
 import com.challenge.arcam2.repository.IAccountRepository;
 import com.challenge.arcam2.repository.ITransactionRepository;
@@ -37,12 +36,7 @@ public class TransactionServiceImpl implements ITransactionService {
     }
 
     public dtoTransactionRequest creditDebits (String action,dtoTransactionRequest transactionRequest){
-        Account account = null;
-        if(action.equals("create")){
-            account = iTransactionRepository.getByAccount(transactionRequest.getAccountId());
-        } else if (action.equals("update")) {
-            account = iTransactionRepository.getByTransactionAccount(transactionRequest.getAccountId());
-        }
+        Account account = iTransactionRepository.getByIdAccount(transactionRequest.getAccountId());
         double currentBalance = account.getCurrentBalance();
         double transactionValue = transactionRequest.getTransactionValue();
         double newBalance = 0;
@@ -72,42 +66,42 @@ public class TransactionServiceImpl implements ITransactionService {
         return transactionResponse;
     }
 
-    @Override
-    public dtoTransactionResponse update(int idTransaction, dtoTransactionRequest transactionRequest) {
-        dtoTransactionResponse transactionResponse = null;
-        dtoTransactionRequest transactionRequest1 = creditDebits("update",transactionRequest);
-        Account account = iTransactionRepository.getByTransactionAccount(transactionRequest.getAccountId());
-        if(account != null){
-            Transaction transaction = iTransactionRepository.findById(idTransaction).orElseGet(Transaction::new);
-
-            transaction.setTransactionDate(transactionRequest.getTransactionDate());
-            transaction.setTransactionType(transactionRequest.getTransactionType());
-            transaction.setTransactionValue(transactionRequest.getTransactionValue());
-            transactionResponse = ITransactionMapper.INSTANCE.transactionTodtoTransactionResponse(iTransactionRepository.save(transaction));
-            return transactionResponse;
-        } else {
-            return create(transactionRequest);
-        }
-    }
-
     /*@Override
     public dtoTransactionResponse update(int idTransaction, dtoTransactionRequest transactionRequest) {
-        dtoTransactionResponse transactionResponse = null;
-        Account account = iTransactionRepository.getByTransactionAccount(transactionRequest.getAccountId());
-        if(account != null){
+        Transaction transactionAux = iTransactionRepository.getByIdTransaction(idTransaction);
+        if(Objects.isNull(transactionAux)){
+            throw new ExceptionArcam(DefaultError.error003);
+        } else {
+            Account account = iTransactionRepository.getByTransactionAccount(transactionRequest.getAccountId());
             Transaction transaction = iTransactionRepository.findById(idTransaction).orElseGet(Transaction::new);
-            double initialBalance = account.getInitialBalance();
+            transactionAux.setTransactionDate(transactionRequest1.getTransactionDate());
+            transaction.setTransactionType(transactionRequest1.getTransactionType());
+            transaction.setTransactionValue(transactionRequest1.getTransactionValue());
+            dtoTransactionResponse transactionResponse = ITransactionMapper.INSTANCE.transactionTodtoTransactionResponse(iTransactionRepository.save(transaction));
+            return transactionResponse;
+        }
+    }*/
+
+    @Override
+    public dtoTransactionResponse update(int idTransaction, dtoTransactionRequest transactionRequest) {
+        Account account = iTransactionRepository.getByTransactionAccount(idTransaction);
+
+        ///if(account != null){
+            Transaction transaction = iTransactionRepository.findById(idTransaction).orElseGet(Transaction::new);
+            double currentBalance = account.getCurrentBalance();
             double transactionValue = transactionRequest.getTransactionValue();
             double newBalance = 0;
             if (transactionRequest.getTransactionType().equals("Deposito")) {
-                newBalance = initialBalance + transactionValue;
+                newBalance = currentBalance + transactionValue;
                 account.setInitialBalance(newBalance);
                 iAccountRepository.save(account);
+                transactionRequest.setTransactionBalance(newBalance);
             } else if (transactionRequest.getTransactionType().equals("Retiro")) {
-                if (initialBalance - transactionValue >= 0) {
-                    newBalance = initialBalance - transactionValue;
+                if (currentBalance - transactionValue >= 0) {
+                    newBalance = currentBalance - transactionValue;
                     account.setInitialBalance(newBalance);
                     iAccountRepository.save(account);
+                    transactionRequest.setTransactionBalance(newBalance);
                 } else {
                     throw new ExceptionArcam(DefaultError.error002);
                 }
@@ -115,12 +109,12 @@ public class TransactionServiceImpl implements ITransactionService {
             transaction.setTransactionDate(transactionRequest.getTransactionDate());
             transaction.setTransactionType(transactionRequest.getTransactionType());
             transaction.setTransactionValue(transactionRequest.getTransactionValue());
-            transactionResponse = ITransactionMapper.INSTANCE.transactionTodtoTransactionResponse(iTransactionRepository.save(transaction));
+            dtoTransactionResponse transactionResponse = ITransactionMapper.INSTANCE.transactionTodtoTransactionResponse(iTransactionRepository.save(transaction));
             return transactionResponse;
-        } else {
-            return create(transactionRequest);
-        }
-    }*/
+        //}
+        //return transactionResponse;
+
+    }
 
     @Override
     public void deleteById(int idTransaction) {

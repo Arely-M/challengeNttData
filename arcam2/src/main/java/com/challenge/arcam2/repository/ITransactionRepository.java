@@ -13,12 +13,15 @@ import java.util.List;
 @Repository
 public interface ITransactionRepository extends JpaRepository<Transaction, Integer> {
 
-    @Query(value="SELECT a FROM Account a WHERE a.idAccount=?1")
-    Account getByAccount(int id);
+    @Query(value="SELECT t FROM Transaction t WHERE t.idTransaction=?1")
+    Transaction getByIdTransaction(int idTransaction);
 
-    @Query(value = "SELECT t,a FROM Transaction t " +
+    @Query(value="SELECT a FROM Account a WHERE a.idAccount=?1")
+    Account getByIdAccount(int idAccount);
+
+    @Query(value = "SELECT a FROM Transaction t " +
             "JOIN Account a on t.id = a.idAccount " +
-            "WHERE a.idAccount=?1")
+            "WHERE t.idTransaction=?1")
     Account getByTransactionAccount(int idAccount);
 
     /*@Query(value="SELECT c FROM Account a JOIN  Client c  on a.clientId  = c.idClient  WHERE a.idAccount =?1")

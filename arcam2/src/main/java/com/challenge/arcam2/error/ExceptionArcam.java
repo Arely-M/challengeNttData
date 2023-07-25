@@ -14,8 +14,4 @@ public class ExceptionArcam extends RuntimeException{
         super();
         this.error = error;
     }
-
-    /*public SaldoNoDisponibleException(String message) {
-
-    }*/
 }

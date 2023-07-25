@@ -11,12 +11,18 @@ public class GlobalControllerExceptionHandler {
     @ExceptionHandler(value = {NullPointerException.class})
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErrorModel deniedPermissionException(NullPointerException ex){
-        return new ErrorModel("001","Error");
+        return new ErrorModel("001","Error valor nulo.");
     }
 
     @ExceptionHandler(value = {ExceptionArcam.class})
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorModel ExceptionArcam(ExceptionArcam ex) {
+        return ex.getError();
+    }
+
+    @ExceptionHandler(value = {Exception.class})
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public String internalServerError(ExceptionArcam ex){
+    public String internalServerError(Exception ex){
         return "Internal Error";
     }
 }

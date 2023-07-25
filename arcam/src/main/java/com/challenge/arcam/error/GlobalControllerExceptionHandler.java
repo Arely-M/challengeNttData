@@ -13,15 +13,9 @@ public class GlobalControllerExceptionHandler {
         return new ErrorModel("001","Error");
     }
 
-    @ExceptionHandler(value = {Exception.class})
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ErrorModel Exception(Exception ex) {
-        return ex.getError();
-    }
-
-    @ExceptionHandler(value = {Exception.class})
+    @ExceptionHandler(value = {ExceptionArcam.class})
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public String internalServerError(Exception ex){
+    public String internalServerError(ExceptionArcam ex){
         return "Internal Error";
     }
 }

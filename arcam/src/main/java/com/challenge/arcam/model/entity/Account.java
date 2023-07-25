@@ -21,6 +21,8 @@ public class Account {
     private String accountType;
     @Column(name = "initial_balance")
     private Double initialBalance;
+    @Column(name = "current_balance")
+    private Double currentBalance;
     @Column(name = "account_status")
     private Boolean accountStatus;
     @Column(name = "client_id")

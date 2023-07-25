@@ -13,6 +13,7 @@ public class dtoAccountResponse implements Serializable {
     private String accountNumber;
     private String accountType;
     private Double initialBalance;
+    private Double currentBalance;
     private Boolean accountStatus;
     private int clientId;
 }

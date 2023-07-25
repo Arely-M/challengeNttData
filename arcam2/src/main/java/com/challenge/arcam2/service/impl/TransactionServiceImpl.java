@@ -35,24 +35,28 @@ public class TransactionServiceImpl implements ITransactionService {
         return transactionResponse;
     }
 
-    public dtoTransactionRequest creditDebits (String action,dtoTransactionRequest transactionRequest){
+    public dtoTransactionRequest creditDebits (dtoTransactionRequest transactionRequest){
         Account account = iTransactionRepository.getByIdAccount(transactionRequest.getAccountId());
-        double currentBalance = account.getCurrentBalance();
-        double transactionValue = transactionRequest.getTransactionValue();
-        double newBalance = 0;
-        if (transactionRequest.getTransactionType().equals("Deposito")) {
-            newBalance = currentBalance + transactionValue;
-            account.setCurrentBalance(newBalance);
-            iAccountRepository.save(account);
-            transactionRequest.setTransactionBalance(newBalance);
-        } else if (transactionRequest.getTransactionType().equals("Retiro")) {
-            if (currentBalance - transactionValue >= 0) {
-                newBalance = currentBalance - transactionValue;
+        if(Objects.isNull(account)){
+            throw new ExceptionArcam(DefaultError.error001);
+        }else {
+            double currentBalance = account.getCurrentBalance();
+            double transactionValue = transactionRequest.getTransactionValue();
+            double newBalance = 0;
+            if (transactionRequest.getTransactionType().equals("Deposito")) {
+                newBalance = currentBalance + transactionValue;
                 account.setCurrentBalance(newBalance);
                 iAccountRepository.save(account);
                 transactionRequest.setTransactionBalance(newBalance);
-            } else {
-                throw new ExceptionArcam(DefaultError.error002);
+            } else if (transactionRequest.getTransactionType().equals("Retiro")) {
+                if (currentBalance - transactionValue >= 0) {
+                    newBalance = currentBalance - transactionValue;
+                    account.setCurrentBalance(newBalance);
+                    iAccountRepository.save(account);
+                    transactionRequest.setTransactionBalance(newBalance);
+                } else {
+                    throw new ExceptionArcam(DefaultError.error002);
+                }
             }
         }
         return transactionRequest;
@@ -60,61 +64,29 @@ public class TransactionServiceImpl implements ITransactionService {
 
     @Override
     public dtoTransactionResponse create(dtoTransactionRequest transactionRequest) {
-        dtoTransactionRequest transactionRequest1 = creditDebits("create",transactionRequest);
+        dtoTransactionRequest transactionRequest1 = creditDebits(transactionRequest);
         Transaction transaction = iTransactionRepository.save(ITransactionMapper.INSTANCE.dtoTransactionRequestToTransaction(transactionRequest1));
         dtoTransactionResponse transactionResponse = ITransactionMapper.INSTANCE.transactionTodtoTransactionResponse(transaction);
         return transactionResponse;
     }
 
-    /*@Override
-    public dtoTransactionResponse update(int idTransaction, dtoTransactionRequest transactionRequest) {
-        Transaction transactionAux = iTransactionRepository.getByIdTransaction(idTransaction);
-        if(Objects.isNull(transactionAux)){
-            throw new ExceptionArcam(DefaultError.error003);
-        } else {
-            Account account = iTransactionRepository.getByTransactionAccount(transactionRequest.getAccountId());
-            Transaction transaction = iTransactionRepository.findById(idTransaction).orElseGet(Transaction::new);
-            transactionAux.setTransactionDate(transactionRequest1.getTransactionDate());
-            transaction.setTransactionType(transactionRequest1.getTransactionType());
-            transaction.setTransactionValue(transactionRequest1.getTransactionValue());
-            dtoTransactionResponse transactionResponse = ITransactionMapper.INSTANCE.transactionTodtoTransactionResponse(iTransactionRepository.save(transaction));
-            return transactionResponse;
-        }
-    }*/
-
     @Override
     public dtoTransactionResponse update(int idTransaction, dtoTransactionRequest transactionRequest) {
-        Account account = iTransactionRepository.getByTransactionAccount(idTransaction);
-
-        ///if(account != null){
-            Transaction transaction = iTransactionRepository.findById(idTransaction).orElseGet(Transaction::new);
-            double currentBalance = account.getCurrentBalance();
-            double transactionValue = transactionRequest.getTransactionValue();
-            double newBalance = 0;
-            if (transactionRequest.getTransactionType().equals("Deposito")) {
-                newBalance = currentBalance + transactionValue;
-                account.setInitialBalance(newBalance);
-                iAccountRepository.save(account);
-                transactionRequest.setTransactionBalance(newBalance);
-            } else if (transactionRequest.getTransactionType().equals("Retiro")) {
-                if (currentBalance - transactionValue >= 0) {
-                    newBalance = currentBalance - transactionValue;
-                    account.setInitialBalance(newBalance);
-                    iAccountRepository.save(account);
-                    transactionRequest.setTransactionBalance(newBalance);
-                } else {
-                    throw new ExceptionArcam(DefaultError.error002);
-                }
-            }
+        Transaction transaction = iTransactionRepository.getByIdTransaction(idTransaction);
+        if(Objects.isNull(transaction)){
+            throw new ExceptionArcam(DefaultError.error003);
+        } else {
+            creditDebits(transactionRequest);
             transaction.setTransactionDate(transactionRequest.getTransactionDate());
             transaction.setTransactionType(transactionRequest.getTransactionType());
             transaction.setTransactionValue(transactionRequest.getTransactionValue());
-            dtoTransactionResponse transactionResponse = ITransactionMapper.INSTANCE.transactionTodtoTransactionResponse(iTransactionRepository.save(transaction));
-            return transactionResponse;
-        //}
-        //return transactionResponse;
-
+            transaction.setTransactionBalance(transactionRequest.getTransactionBalance());
+            transaction.setAccountId(transactionRequest.getAccountId());
+        }
+        dtoTransactionResponse transactionResponse = ITransactionMapper.INSTANCE.transactionTodtoTransactionResponse(iTransactionRepository.save(transaction));
+        return transactionResponse;
     }
+
 
     @Override
     public void deleteById(int idTransaction) {

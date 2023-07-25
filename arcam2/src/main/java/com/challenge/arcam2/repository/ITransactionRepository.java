@@ -19,10 +19,9 @@ public interface ITransactionRepository extends JpaRepository<Transaction, Integ
     @Query(value="SELECT a FROM Account a WHERE a.idAccount=?1")
     Account getByIdAccount(int idAccount);
 
-    @Query(value = "SELECT a FROM Transaction t " +
-            "JOIN Account a on t.id = a.idAccount " +
-            "WHERE t.idTransaction=?1")
-    Account getByTransactionAccount(int idAccount);
+    /*@Query(value = "SELECT a FROM Account a" +
+            "WHERE a.idAccount=?1 ")
+    Account getByTransactionAccount(int idAccount);*/
 
     /*@Query(value="SELECT c FROM Account a JOIN  Client c  on a.clientId  = c.idClient  WHERE a.idAccount =?1")
     Account getClientById(int id);

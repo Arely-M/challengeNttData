@@ -2,11 +2,13 @@ package com.challenge.arcam2.controller;
 
 import com.challenge.arcam2.dto.dtoTransactionRequest;
 import com.challenge.arcam2.dto.dtoTransactionResponse;
+import com.challenge.arcam2.model.entity.Report;
 import com.challenge.arcam2.service.ITransactionService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.sql.Date;
 import java.util.List;
 
 @RestController
@@ -42,5 +44,12 @@ public class TransactionController {
     public ResponseEntity<dtoTransactionResponse> deleteById(@PathVariable int idTransaction){
         iTransactionService.deleteById(idTransaction);
         return ResponseEntity.ok(null);
+    }
+
+    @GetMapping("/reports")
+    public ResponseEntity<List<Report>> generateReport(@RequestParam("clientId") int clientId,
+                                                       @RequestParam("startDate") Date startDate,
+                                                       @RequestParam("endDate") Date endDate) {
+        return ResponseEntity.ok(iTransactionService.generateReport(clientId, startDate, endDate));
     }
 }

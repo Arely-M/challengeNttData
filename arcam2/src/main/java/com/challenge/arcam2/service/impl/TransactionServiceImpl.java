@@ -6,6 +6,8 @@ import com.challenge.arcam2.error.DefaultError;
 import com.challenge.arcam2.error.ExceptionArcam;
 import com.challenge.arcam2.mapper.ITransactionMapper;
 import com.challenge.arcam2.model.entity.Account;
+import com.challenge.arcam2.model.entity.Client;
+import com.challenge.arcam2.model.entity.Report;
 import com.challenge.arcam2.model.entity.Transaction;
 import com.challenge.arcam2.repository.IAccountRepository;
 import com.challenge.arcam2.repository.ITransactionRepository;
@@ -14,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.sql.Date;
 
 @Service
 @RequiredArgsConstructor
@@ -93,25 +96,23 @@ public class TransactionServiceImpl implements ITransactionService {
         iTransactionRepository.deleteById(idTransaction);
     }
 
-    /*public Report generateReport(int clientId, Date startDate, Date endDate) {
-        Client client = iTransactionRepository.getClientById(clientId);
-        List<Account> accounts = iTransactionRepository.accountByClient(client);
-        Map<Account, Double> saldosPorCuenta = new HashMap<>();
-        Map<Account, List<Transaction>> movimientosPorCuenta = new HashMap<>();
-
-        for (Account account : accounts) {
-            double saldo = account.getInitialBalance();
-            List<Transaction> transactions = iTransactionRepository.transactionByAccountAndDate(account, startDate, endDate);
-            for (Transaction transaction : transactions) {
-                if (transaction.getTransactionType().equals("Deposito")) {
-                    saldo += transaction.getTransactionValue();
-                } else if (transaction.getTransactionType().equals("Retiro")) {
-                    saldo -= transaction.getTransactionValue();
-                }
-            }
-            saldosPorCuenta.put(account, saldo);
-            movimientosPorCuenta.put(account, transactions);
+    public List<Report> generateReport(int clientId, Date startDate, Date endDate) {
+        List<Report> reportList = new ArrayList<>();
+        Account account = iTransactionRepository.getClientById(clientId);
+        Client client = iTransactionRepository.getByIdClient(account.getClientId());
+        List<Transaction> transactions = iTransactionRepository.transactionByAccountAndDate(account.getIdAccount(), startDate, endDate);
+        for (Transaction transaction :transactions) {
+            Report report = new Report();
+            report.setDate(transaction.getTransactionDate());
+            report.setClientName(client.getNamePerson());
+            report.setAccountNumber(account.getAccountNumber());
+            report.setAccountType(account.getAccountType());
+            report.setInitialBalance(account.getInitialBalance());
+            report.setAccountStatus(account.getAccountStatus());
+            report.setTransaction(transaction.getTransactionValue());
+            report.setCurrentBalance(account.getCurrentBalance());
+            reportList.add(report);
         }
-        return new Report(client, saldosPorCuenta, movimientosPorCuenta);
-    }*/
+        return reportList;
+    }
 }

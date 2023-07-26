@@ -2,6 +2,7 @@ package com.challenge.arcam2.util;
 
 import com.challenge.arcam2.dto.dtoTransactionRequest;
 import com.challenge.arcam2.dto.dtoTransactionResponse;
+import com.challenge.arcam2.model.entity.Account;
 import com.challenge.arcam2.model.entity.Transaction;
 
 import java.util.ArrayList;
@@ -9,6 +10,16 @@ import java.util.Date;
 import java.util.List;
 
 public class MockMethod {
+
+    public static Account account(){
+        Account account = new Account();
+        account.setIdAccount(1);
+        account.setAccountNumber("00000001");
+        account.setAccountType("Ahorro");
+        account.setInitialBalance(50.0);
+        account.setAccountStatus(true);
+        return account;
+    }
 
     public static List<Transaction> listTransaction(){
         List<Transaction> listTransaction = new ArrayList<>();

@@ -11,6 +11,8 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import java.util.Optional;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
@@ -42,8 +44,9 @@ class AccountServiceImplTest {
 
     @Test
     void update() {
-        iAccountRepository.save(Mockito.any(Account.class));
+        Mockito.when(iAccountRepository.findById(Mockito.any())).thenReturn(Optional.of(MockMethod.account()));
         Mockito.when(iAccountRepository.save(Mockito.any())).thenReturn(MockMethod.account());
+        iAccountRepository.save(Mockito.any(Account.class));
         Assertions.assertNotNull(accountServiceImpl.update(1, MockMethod.accountRequest()));
     }
 

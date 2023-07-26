@@ -18,6 +18,7 @@ public class MockMethod {
         account.setAccountType("Ahorro");
         account.setInitialBalance(50.0);
         account.setAccountStatus(true);
+        account.setCurrentBalance(2000.0);
         return account;
     }
 
